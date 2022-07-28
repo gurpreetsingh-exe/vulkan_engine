@@ -7,7 +7,10 @@ Window::~Window() {
 
 void Window::Init() {
     if (!glfwInit())
-        std::cout << "GLFW cannot be initialized" << std::endl;
+        throw std::runtime_error("GLFW cannot be initialized");
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     m_Window = glfwCreateWindow(
         m_Width,
@@ -17,8 +20,12 @@ void Window::Init() {
 
     if (!m_Window) {
         glfwTerminate();
-        std::cout << "Failed to create window" << std::endl;
+        throw std::runtime_error("Failed to create window");
     }
+}
+
+const char** Window::getExtensions(uint32_t& extensionCount) {
+    return glfwGetRequiredInstanceExtensions(&extensionCount);
 }
 
 void Window::onUpdate() {

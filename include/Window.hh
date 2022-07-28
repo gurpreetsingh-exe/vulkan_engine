@@ -11,6 +11,7 @@ public:
 public:
     void Init();
     void onUpdate();
+    const char** getExtensions(uint32_t& extensionCount);
     bool isRunning();
 
 private:

@@ -11,5 +11,8 @@ public:
 
 private:
     Window* m_Window;
+    VkInstance m_Instance;
+    VkApplicationInfo m_AppInfo;
+    VkInstanceCreateInfo m_CreateInfo;
     std::string m_Name;
 };
