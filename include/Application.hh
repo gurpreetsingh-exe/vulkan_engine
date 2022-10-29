@@ -1,4 +1,3 @@
-#include <vulkan/vulkan.h>
 #include <vector>
 #include <cstring>
 #include <optional>
@@ -36,6 +35,7 @@ private:
     void setupDebugMessenger();
     bool checkValidationLayerSupport();
     std::vector<const char*> getRequiredExtensions();
+    void createSurface();
     void pickPhysicalDevice();
     void createLogicalDevice();
 
@@ -65,4 +65,6 @@ private:
     VkDebugUtilsMessengerEXT m_DebugMessenger;
     VkPhysicalDevice m_PhysicalDevice;
     VkDevice m_Device;
+    VkQueue m_GraphicsQueue;
+    VkSurfaceKHR m_Surface;
 };

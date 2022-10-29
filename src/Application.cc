@@ -1,5 +1,7 @@
 #include "Application.hh"
 
+#include <iostream>
+
 Application::Application(std::string name) {
     if (enableValidationLayers && !checkValidationLayerSupport()) {
         throw std::runtime_error("validation layers requested, but not available!");
@@ -7,6 +9,7 @@ Application::Application(std::string name) {
 
     m_Name = name;
     m_Window = new Window(width, height, m_Name);
+    m_Window->Init();
 
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -15,6 +18,7 @@ Application::Application(std::string name) {
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
+    appInfo.pNext = nullptr;
 
     VkInstanceCreateInfo createInfo;
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -40,17 +44,17 @@ Application::Application(std::string name) {
         throw std::runtime_error("Failed to create vulkan instance!");
     }
 
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    std::vector<VkExtensionProperties> extensions(extensionCount);
-
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount,
-        extensions.data());
-    std::cout << "Extensions: " << extensionCount << "\n";
 
     setupDebugMessenger();
+    createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+}
+
+void Application::createSurface() {
+    if (glfwCreateWindowSurface(m_Instance, m_Window->getHandle(), nullptr, &m_Surface) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create window surface!");
+    }
 }
 
 QueueFamily findQueueFamilies(VkPhysicalDevice device) {
@@ -95,6 +99,8 @@ void Application::createLogicalDevice() {
     if (vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS) {
         throw std::runtime_error("failed to create logical device!");
     }
+
+    vkGetDeviceQueue(m_Device, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
 }
 
 bool isSuitableDevice(VkPhysicalDevice device) {
@@ -222,7 +228,7 @@ bool Application::checkValidationLayerSupport() {
 std::vector<const char*> Application::getRequiredExtensions() {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    glfwExtensions = m_Window->getExtensions(&glfwExtensionCount);
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
@@ -245,8 +251,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Application::debugCallback(
 }
 
 void Application::run() {
-    m_Window->Init();
-
     while(!m_Window->isRunning()) {
         m_Window->onUpdate();
     }
@@ -258,6 +262,7 @@ Application::~Application() {
     }
 
     vkDestroyDevice(m_Device, nullptr);
+    vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
     delete m_Window;
 }

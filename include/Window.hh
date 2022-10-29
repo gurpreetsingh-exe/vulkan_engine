@@ -1,6 +1,8 @@
-#include <iostream>
-#include <string>
+#include <vulkan/vulkan.hpp>
+
+#define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
+#include <string>
 
 class Window {
 public:
@@ -11,8 +13,9 @@ public:
 public:
     void Init();
     void onUpdate();
-    const char** getExtensions(uint32_t& extensionCount);
+    const char** getExtensions(uint32_t* extensionCount);
     bool isRunning();
+    GLFWwindow* getHandle();
 
 private:
     GLFWwindow* m_Window;
