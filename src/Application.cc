@@ -49,6 +49,39 @@ Application::Application(std::string name) {
     std::cout << "Extensions: " << extensionCount << "\n";
 
     setupDebugMessenger();
+    pickPhysicalDevice();
+}
+
+bool isSuitableDevice(VkPhysicalDevice device) {
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+    return (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+        || deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
+        && deviceFeatures.geometryShader;
+}
+
+void Application::pickPhysicalDevice() {
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(m_Instance, &deviceCount, nullptr);
+
+    if (deviceCount == 0) {
+        throw std::runtime_error("failed to find GPUs with Vulkan support!");
+    }
+
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(m_Instance, &deviceCount, devices.data());
+    for (const auto& device : devices) {
+        if (isSuitableDevice(device)) {
+            m_PhysicalDevice = device;
+            break;
+        }
+    }
+
+    if (m_PhysicalDevice == VK_NULL_HANDLE) {
+        throw std::runtime_error("failed to find suitable GPU!");
+    }
 }
 
 void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
