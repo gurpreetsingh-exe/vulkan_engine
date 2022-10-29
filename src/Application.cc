@@ -50,6 +50,51 @@ Application::Application(std::string name) {
 
     setupDebugMessenger();
     pickPhysicalDevice();
+    createLogicalDevice();
+}
+
+QueueFamily findQueueFamilies(VkPhysicalDevice device) {
+    QueueFamily indices;
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    int i = 0;
+    for (const auto& queueFamily : queueFamilies) {
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            indices.graphicsFamily = i;
+            if (indices.isComplete()) {
+                break;
+            }
+        }
+        i++;
+    }
+
+    return indices;
+}
+
+void Application::createLogicalDevice() {
+    QueueFamily indices = findQueueFamilies(m_PhysicalDevice);
+
+    VkDeviceQueueCreateInfo queueCreateInfo {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    queueCreateInfo.queueCount = 1;
+
+    VkPhysicalDeviceFeatures deviceFeatures {};
+
+    VkDeviceCreateInfo createInfo {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    if (vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create logical device!");
+    }
 }
 
 bool isSuitableDevice(VkPhysicalDevice device) {
@@ -57,9 +102,12 @@ bool isSuitableDevice(VkPhysicalDevice device) {
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-    return (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
+    bool suitable_type = (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU
         || deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU)
         && deviceFeatures.geometryShader;
+
+    auto queueFamily = findQueueFamilies(device);
+    return suitable_type && queueFamily.isComplete();
 }
 
 void Application::pickPhysicalDevice() {
@@ -209,6 +257,7 @@ Application::~Application() {
         DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
     }
 
+    vkDestroyDevice(m_Device, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
     delete m_Window;
 }

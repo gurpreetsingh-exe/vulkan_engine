@@ -1,8 +1,17 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <cstring>
+#include <optional>
 
 #include "Window.hh"
+
+struct QueueFamily {
+    std::optional<uint32_t> graphicsFamily;
+
+    bool isComplete() {
+        return graphicsFamily.has_value();
+    }
+};
 
 class Application {
 public:
@@ -28,6 +37,7 @@ private:
     bool checkValidationLayerSupport();
     std::vector<const char*> getRequiredExtensions();
     void pickPhysicalDevice();
+    void createLogicalDevice();
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -54,4 +64,5 @@ private:
     std::string m_Name;
     VkDebugUtilsMessengerEXT m_DebugMessenger;
     VkPhysicalDevice m_PhysicalDevice;
+    VkDevice m_Device;
 };
