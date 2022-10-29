@@ -6,9 +6,10 @@
 
 struct QueueFamily {
     std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
 
     bool isComplete() {
-        return graphicsFamily.has_value();
+        return graphicsFamily.has_value() && presentFamily.has_value();
     }
 };
 
@@ -37,6 +38,8 @@ private:
     std::vector<const char*> getRequiredExtensions();
     void createSurface();
     void pickPhysicalDevice();
+    QueueFamily findQueueFamilies(VkPhysicalDevice device);
+    bool isSuitableDevice(VkPhysicalDevice device);
     void createLogicalDevice();
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
@@ -66,5 +69,6 @@ private:
     VkPhysicalDevice m_PhysicalDevice;
     VkDevice m_Device;
     VkQueue m_GraphicsQueue;
+    VkQueue m_PresentQueue;
     VkSurfaceKHR m_Surface;
 };
