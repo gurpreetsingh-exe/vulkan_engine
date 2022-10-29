@@ -39,13 +39,9 @@ const char** Window::getExtensions(uint32_t* extensionCount) {
     return glfwGetRequiredInstanceExtensions(extensionCount);
 }
 
-void Window::onUpdate() {
-    glfwSwapBuffers(m_Window);
-    glfwPollEvents();
-}
-
 bool Window::isRunning() {
     m_isRunning = glfwWindowShouldClose(m_Window);
+    glfwPollEvents();
     return m_isRunning;
 }
 

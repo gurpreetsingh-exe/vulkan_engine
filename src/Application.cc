@@ -83,10 +83,12 @@ QueueFamily findQueueFamilies(VkPhysicalDevice device) {
 void Application::createLogicalDevice() {
     QueueFamily indices = findQueueFamilies(m_PhysicalDevice);
 
+    float queuePriority = 1.0f;
     VkDeviceQueueCreateInfo queueCreateInfo {};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
     queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
 
     VkPhysicalDeviceFeatures deviceFeatures {};
 
@@ -251,9 +253,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Application::debugCallback(
 }
 
 void Application::run() {
-    while(!m_Window->isRunning()) {
-        m_Window->onUpdate();
-    }
+    while(!m_Window->isRunning()) {}
 }
 
 Application::~Application() {
