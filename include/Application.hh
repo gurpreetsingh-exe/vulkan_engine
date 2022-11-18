@@ -9,7 +9,7 @@
 #include "Window.hh"
 
 struct Vertex {
-    glm::vec2 pos;
+    glm::vec3 pos;
     glm::vec3 color;
 
     static VkVertexInputBindingDescription getBindingDescription() {
@@ -27,7 +27,7 @@ struct Vertex {
 
         desc[0].binding = 0;
         desc[0].location = 0;
-        desc[0].format = VK_FORMAT_R32G32_SFLOAT;
+        desc[0].format = VK_FORMAT_R32G32B32_SFLOAT;
         desc[0].offset = offsetof(Vertex, pos);
 
         desc[1].binding = 0;
@@ -70,10 +70,10 @@ public:
     bool frameBufferResized = false;
 
     const std::vector<Vertex> vertices = {
-        { { -0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
-        { {  0.5f, -0.5f }, { 1.0f, 1.0f, 0.0f } },
-        { {  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f } },
-        { { -0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f } }
+        { { -1.0f, -1.0f,  0.0f }, { 0.0f, 1.0f, 0.0f } },
+        { {  1.0f, -1.0f,  0.0f }, { 1.0f, 1.0f, 0.0f } },
+        { {  1.0f,  1.0f,  0.0f }, { 1.0f, 0.0f, 0.0f } },
+        { { -1.0f,  1.0f,  0.0f }, { 0.0f, 0.0f, 0.0f } }
     };
 
     const std::vector<uint16_t> indices = {
