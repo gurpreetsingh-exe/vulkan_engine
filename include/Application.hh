@@ -23,6 +23,8 @@ class Application {
 public:
     static constexpr int width = 512;
     static constexpr int height = 512;
+    const int MAX_FRAMES_IN_FLIGHT = 2;
+
     const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -109,8 +111,10 @@ private:
     VkPipeline m_GraphicsPipeline;
     std::vector<VkFramebuffer> m_SwapChainFramebuffers;
     VkCommandPool m_CommandPool;
-    VkCommandBuffer m_CommandBuffer;
-    VkSemaphore m_ImageAvailableSemaphore;
-    VkSemaphore m_RenderFinishedSemaphore;
-    VkFence m_InFlightFence;
+    std::vector<VkCommandBuffer> m_CommandBuffers;
+    std::vector<VkSemaphore> m_ImageAvailableSemaphores;
+    std::vector<VkSemaphore> m_RenderFinishedSemaphores;
+    std::vector<VkFence> m_InFlightFences;
+
+    uint32_t m_CurrentFrame = 0;
 };
