@@ -70,9 +70,14 @@ public:
     bool frameBufferResized = false;
 
     const std::vector<Vertex> vertices = {
-        { {  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
-        { {  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
-        { { -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } }
+        { { -0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
+        { {  0.5f, -0.5f }, { 1.0f, 1.0f, 0.0f } },
+        { {  0.5f,  0.5f }, { 1.0f, 0.0f, 0.0f } },
+        { { -0.5f,  0.5f }, { 0.0f, 0.0f, 0.0f } }
+    };
+
+    const std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0,
     };
 
 #ifdef NDEBUG
@@ -116,6 +121,7 @@ private:
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();
     void createVertexBuffer();
+    void createIndexBuffer();
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void createBuffer(VkDeviceSize size,
         VkBufferUsageFlags usage,
@@ -169,6 +175,8 @@ private:
     std::vector<VkFence> m_InFlightFences;
     VkBuffer m_VertexBuffer;
     VkDeviceMemory m_VertexBufferMemory;
+    VkBuffer m_IndexBuffer;
+    VkDeviceMemory m_IndexBufferMemory;
 
     uint32_t m_CurrentFrame = 0;
 };
