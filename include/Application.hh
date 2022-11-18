@@ -1,10 +1,43 @@
 #pragma once
 
+#include <array>
 #include <vector>
 #include <cstring>
 #include <optional>
+#include <glm/glm.hpp>
 
 #include "Window.hh"
+
+struct Vertex {
+    glm::vec2 pos;
+    glm::vec3 color;
+
+    static VkVertexInputBindingDescription getBindingDescription() {
+        VkVertexInputBindingDescription desc {};
+
+        desc.binding = 0;
+        desc.stride = sizeof(Vertex);
+        desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return desc;
+    }
+
+    static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 2> desc {};
+
+        desc[0].binding = 0;
+        desc[0].location = 0;
+        desc[0].format = VK_FORMAT_R32G32_SFLOAT;
+        desc[0].offset = offsetof(Vertex, pos);
+
+        desc[1].binding = 0;
+        desc[1].location = 1;
+        desc[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+        desc[1].offset = offsetof(Vertex, color);
+
+        return desc;
+    }
+};
 
 struct QueueFamily {
     std::optional<uint32_t> graphicsFamily;
@@ -35,6 +68,12 @@ public:
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
     bool frameBufferResized = false;
+
+    const std::vector<Vertex> vertices = {
+        { {  0.0f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+        { {  0.5f,  0.5f }, { 0.0f, 1.0f, 0.0f } },
+        { { -0.5f,  0.5f }, { 0.0f, 0.0f, 1.0f } }
+    };
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -76,6 +115,8 @@ private:
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();
+    void createVertexBuffer();
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -120,6 +161,8 @@ private:
     std::vector<VkSemaphore> m_ImageAvailableSemaphores;
     std::vector<VkSemaphore> m_RenderFinishedSemaphores;
     std::vector<VkFence> m_InFlightFences;
+    VkBuffer m_VertexBuffer;
+    VkDeviceMemory m_VertexBufferMemory;
 
     uint32_t m_CurrentFrame = 0;
 };
