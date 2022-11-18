@@ -1,4 +1,5 @@
 #include "Window.hh"
+#include "Application.hh"
 
 #include <iostream>
 
@@ -11,6 +12,11 @@ void GLFW_error(int err, const char* description) {
     std::cout << description << std::endl;
 }
 
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    auto app = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window));
+    app->frameBufferResized = true;
+}
+
 void Window::Init() {
     glfwSetErrorCallback(GLFW_error);
     if (!glfwInit())
@@ -21,13 +27,14 @@ void Window::Init() {
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     m_Window = glfwCreateWindow(
         m_Width,
         m_Height,
         m_Name.c_str(),
         nullptr, nullptr);
+
+    glfwSetFramebufferSizeCallback(m_Window, framebufferResizeCallback);
 
     if (!m_Window) {
         glfwTerminate();

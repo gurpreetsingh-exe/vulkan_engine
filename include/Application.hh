@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <cstring>
 #include <optional>
@@ -32,6 +34,7 @@ public:
     const std::vector<const char*> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
+    bool frameBufferResized = false;
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -60,6 +63,8 @@ private:
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void createSwapChain();
+    void recreateSwapChain();
+    void cleanupSwapChain();
 
     void createImageViews();
     void createRenderPass();

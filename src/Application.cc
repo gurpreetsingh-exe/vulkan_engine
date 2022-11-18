@@ -26,6 +26,7 @@ Application::Application(std::string name) {
     m_Name = name;
     m_Window = new Window(width, height, m_Name);
     m_Window->Init();
+    glfwSetWindowUserPointer(m_Window->getHandle(), this);
 
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -132,6 +133,34 @@ void Application::createSwapChain() {
 
     m_SwapChainImageFormat = surfaceFormat.format;
     m_SwapChainExtent = extent;
+}
+
+void Application::recreateSwapChain() {
+    vkDeviceWaitIdle(m_Device);
+
+    cleanupSwapChain();
+
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createGraphicsPipeline();
+    createFramebuffers();
+}
+
+void Application::cleanupSwapChain() {
+    for (auto framebuffer : m_SwapChainFramebuffers) {
+        vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
+    }
+
+    vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
+    vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
+
+    for (auto imageView : m_SwapChainImageViews) {
+        vkDestroyImageView(m_Device, imageView, nullptr);
+    }
+
+    vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
 }
 
 void Application::createImageViews() {
@@ -757,10 +786,17 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Application::debugCallback(
 
 void Application::drawFrame() {
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
-    vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
 
     uint32_t imageIndex;
-    vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreateSwapChain();
+        return;
+    } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
     vkResetCommandBuffer(m_CommandBuffers[m_CurrentFrame], 0);
     recordCommandBuffer(m_CommandBuffers[m_CurrentFrame], imageIndex);
 
@@ -792,7 +828,14 @@ void Application::drawFrame() {
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
-    vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+    result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || frameBufferResized) {
+        frameBufferResized = false;
+        recreateSwapChain();
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
     m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
@@ -817,19 +860,7 @@ Application::~Application() {
 
     vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
-    for (auto framebuffer : m_SwapChainFramebuffers) {
-        vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
-    }
-
-    vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
-    vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
-
-    for (auto imageView : m_SwapChainImageViews) {
-        vkDestroyImageView(m_Device, imageView, nullptr);
-    }
-
-    vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+    cleanupSwapChain();
     vkDestroyDevice(m_Device, nullptr);
     vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
