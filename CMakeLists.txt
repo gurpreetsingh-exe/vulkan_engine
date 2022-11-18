@@ -8,8 +8,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 find_package(Vulkan REQUIRED)
-find_package(glfw3 REQUIRED)
 find_package(X11 REQUIRED)
+
+add_subdirectory(extern/glfw)
 
 add_executable(pixel_engine ${SOURCES})
 target_link_libraries(pixel_engine PUBLIC Vulkan::Vulkan glfw X11 Xxf86vm Xrandr Xi Xrender ${CMAKE_DL_LIBS})
