@@ -1,5 +1,5 @@
 #include "Window.hh"
-#include "Application.hh"
+#include "Vulkan/VulkanContext.hh"
 
 #include <iostream>
 
@@ -13,7 +13,7 @@ void GLFW_error(int err, const char* description) {
 }
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-    auto app = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window));
+    auto app = reinterpret_cast<VulkanContext*>(glfwGetWindowUserPointer(window));
     app->frameBufferResized = true;
 }
 
