@@ -8,6 +8,12 @@
 
 #include "Window.hh"
 
+struct UniformBufferObject {
+    alignas(16) glm::mat4 model;
+    alignas(16) glm::mat4 view;
+    alignas(16) glm::mat4 proj;
+};
+
 struct Vertex {
     glm::vec3 pos;
     glm::vec3 color;
@@ -111,6 +117,8 @@ private:
     void drawFrame();
     void createVertexBuffer();
     void createIndexBuffer();
+    void createUniformBuffers();
+    void updateUniformBuffer(uint32_t currentImage);
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void createBuffer(VkDeviceSize size,
         VkBufferUsageFlags usage,
@@ -118,6 +126,9 @@ private:
         VkBuffer& buffer,
         VkDeviceMemory& bufferMemory);
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+    void createDescriptorSetLayout();
+    void createDescriptorPool();
+    void createDescriptorSets();
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -154,6 +165,7 @@ private:
     VkExtent2D m_SwapChainExtent;
     std::vector<VkImageView> m_SwapChainImageViews;
     VkRenderPass m_RenderPass;
+    VkDescriptorSetLayout m_DescriptorSetLayout;
     VkPipelineLayout m_PipelineLayout;
     VkPipeline m_GraphicsPipeline;
     std::vector<VkFramebuffer> m_SwapChainFramebuffers;
@@ -178,6 +190,12 @@ private:
     VkDeviceMemory m_VertexBufferMemory;
     VkBuffer m_IndexBuffer;
     VkDeviceMemory m_IndexBufferMemory;
+    std::vector<VkBuffer> m_UniformBuffers;
+    std::vector<VkDeviceMemory> m_UniformBuffersMemory;
+    std::vector<void*> m_UniformBuffersMapped;
+
+    VkDescriptorPool m_DescriptorPool;
+    std::vector<VkDescriptorSet> m_DescriptorSets;
 
     uint32_t m_CurrentFrame = 0;
 };
