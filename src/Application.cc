@@ -462,8 +462,8 @@ void Application::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t im
     VkBuffer vertexBuffers[] = { m_VertexBuffer };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+    vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
     vkCmdEndRenderPass(commandBuffer);
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
@@ -892,7 +892,7 @@ void Application::createBuffer(VkDeviceSize size,
 }
 
 void Application::createVertexBuffer() {
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(m_Vertices[0]) * m_Vertices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -905,7 +905,7 @@ void Application::createVertexBuffer() {
 
     void* data;
     vkMapMemory(m_Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), (size_t)bufferSize);
+    memcpy(data, m_Vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(m_Device, stagingBufferMemory);
 
     createBuffer(bufferSize,
@@ -921,7 +921,7 @@ void Application::createVertexBuffer() {
 }
 
 void Application::createIndexBuffer() {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    VkDeviceSize bufferSize = sizeof(m_Indices[0]) * m_Indices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -934,7 +934,7 @@ void Application::createIndexBuffer() {
 
     void* data;
     vkMapMemory(m_Device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), (size_t)bufferSize);
+    memcpy(data, m_Indices.data(), (size_t)bufferSize);
     vkUnmapMemory(m_Device, stagingBufferMemory);
 
     createBuffer(bufferSize,

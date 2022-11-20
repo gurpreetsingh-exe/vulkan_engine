@@ -69,17 +69,6 @@ public:
     };
     bool frameBufferResized = false;
 
-    const std::vector<Vertex> vertices = {
-        { { -1.0f, -1.0f,  0.0f }, { 0.0f, 1.0f, 0.0f } },
-        { {  1.0f, -1.0f,  0.0f }, { 1.0f, 1.0f, 0.0f } },
-        { {  1.0f,  1.0f,  0.0f }, { 1.0f, 0.0f, 0.0f } },
-        { { -1.0f,  1.0f,  0.0f }, { 0.0f, 0.0f, 0.0f } }
-    };
-
-    const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0,
-    };
-
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
 #else
@@ -173,6 +162,18 @@ private:
     std::vector<VkSemaphore> m_ImageAvailableSemaphores;
     std::vector<VkSemaphore> m_RenderFinishedSemaphores;
     std::vector<VkFence> m_InFlightFences;
+
+    std::vector<Vertex> m_Vertices = {
+        { { -1.0f, -1.0f,  0.0f }, { 0.0f, 1.0f, 0.0f } },
+        { {  1.0f, -1.0f,  0.0f }, { 1.0f, 1.0f, 0.0f } },
+        { {  1.0f,  1.0f,  0.0f }, { 1.0f, 0.0f, 0.0f } },
+        { { -1.0f,  1.0f,  0.0f }, { 0.0f, 0.0f, 0.0f } }
+    };
+
+    std::vector<uint32_t> m_Indices = {
+        0, 1, 2, 2, 3, 0,
+    };
+
     VkBuffer m_VertexBuffer;
     VkDeviceMemory m_VertexBufferMemory;
     VkBuffer m_IndexBuffer;
