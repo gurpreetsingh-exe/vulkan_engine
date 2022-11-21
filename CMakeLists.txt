@@ -17,6 +17,7 @@ find_package(Vulkan REQUIRED)
 find_package(X11 REQUIRED)
 
 add_subdirectory(extern/glfw)
+add_subdirectory(extern/tinygltf)
 
 add_executable(vulkan_engine ${SOURCES})
-target_link_libraries(vulkan_engine PUBLIC Vulkan::Vulkan glfw X11 Xxf86vm Xrandr Xi Xrender ${CMAKE_DL_LIBS})
+target_link_libraries(vulkan_engine PUBLIC Vulkan::Vulkan glfw tinygltf X11 Xxf86vm Xrandr Xi Xrender ${CMAKE_DL_LIBS})
