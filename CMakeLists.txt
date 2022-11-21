@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(pixel_engine VERSION 1.0)
+project(vulkan_engine VERSION 1.0)
 
 set(SOURCES
     src/main.cc
@@ -18,5 +18,5 @@ find_package(X11 REQUIRED)
 
 add_subdirectory(extern/glfw)
 
-add_executable(pixel_engine ${SOURCES})
-target_link_libraries(pixel_engine PUBLIC Vulkan::Vulkan glfw X11 Xxf86vm Xrandr Xi Xrender ${CMAKE_DL_LIBS})
+add_executable(vulkan_engine ${SOURCES})
+target_link_libraries(vulkan_engine PUBLIC Vulkan::Vulkan glfw X11 Xxf86vm Xrandr Xi Xrender ${CMAKE_DL_LIBS})

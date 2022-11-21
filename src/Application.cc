@@ -1,4 +1,5 @@
 #include "Application.hh"
+#include "Event.hh"
 
 Application::Application(std::string name) {
     m_Name = name;
@@ -11,7 +12,8 @@ Application::Application(std::string name) {
 
 void Application::run() {
     while(!m_Window->isRunning()) {
-        m_Camera->onUpdate();
+        auto* e = m_Window->getEvent();
+        m_Camera->onUpdate(*e);
         m_VulkanContext->drawFrame(*m_Camera);
     }
 }
