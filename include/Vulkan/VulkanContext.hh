@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include "Window.hh"
+#include "Camera.hh"
 
 struct UniformBufferObject {
     alignas(16) glm::mat4 model;
@@ -85,7 +86,7 @@ public:
     ~VulkanContext();
 
 public:
-    void drawFrame();
+    void drawFrame(Camera& camera);
 
 private:
     void setupDebugMessenger();
@@ -118,7 +119,7 @@ private:
     void createVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffers();
-    void updateUniformBuffer(uint32_t currentImage);
+    void updateUniformBuffer(Camera& camera, uint32_t currentImage);
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void createBuffer(VkDeviceSize size,
         VkBufferUsageFlags usage,

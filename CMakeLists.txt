@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.7)
 project(pixel_engine VERSION 1.0)
 
-set(SOURCES src/main.cc src/Application.cc src/Window.cc src/Vulkan/VulkanContext.cc)
+set(SOURCES
+    src/main.cc
+    src/Application.cc
+    src/Window.cc
+    src/Camera.cc
+    src/Vulkan/VulkanContext.cc)
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(CMAKE_CXX_STANDARD 20)

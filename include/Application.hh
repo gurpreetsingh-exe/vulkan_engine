@@ -6,6 +6,7 @@
 #include <optional>
 #include <glm/glm.hpp>
 
+#include "Camera.hh"
 #include "Window.hh"
 #include "Vulkan/VulkanContext.hh"
 
@@ -24,4 +25,5 @@ private:
     std::string m_Name;
     Window* m_Window;
     VulkanContext* m_VulkanContext;
+    Camera* m_Camera;
 };
