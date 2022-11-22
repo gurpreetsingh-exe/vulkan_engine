@@ -6,6 +6,8 @@
 #include <vector>
 #include <cstring>
 #include <optional>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 #include <glm/glm.hpp>
 
 #include "Window.hh"
@@ -46,7 +48,19 @@ struct Vertex {
 
         return desc;
     }
+
+    bool operator==(const Vertex& other) const {
+        return pos == other.pos && color == other.color;
+    }
 };
+
+namespace std {
+    template<> struct hash<Vertex> {
+        size_t operator()(Vertex const& vertex) const {
+            return ((hash<glm::vec3>()(vertex.pos) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1);
+        }
+    };
+}
 
 struct QueueFamily {
     std::optional<uint32_t> graphicsFamily;

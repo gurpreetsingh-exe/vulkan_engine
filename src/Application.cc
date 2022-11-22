@@ -6,7 +6,7 @@ Application::Application(std::string name) {
     m_Window = new Window(width, height, m_Name);
     m_Window->Init();
 
-    m_Camera = new Camera(70.0f, glm::vec2(width, height), 0.1f, 10.0f);
+    m_Camera = new Camera(70.0f, glm::vec2(width, height), 0.1f, 100.0f);
     m_VulkanContext = new VulkanContext(m_Window);
 }
 

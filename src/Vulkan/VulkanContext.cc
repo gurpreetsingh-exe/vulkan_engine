@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include <unordered_map>
 #include <chrono>
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_RADIANS
@@ -1167,18 +1168,19 @@ void VulkanContext::createBuffer(VkDeviceSize size,
 }
 
 void VulkanContext::loadObj(const char* filepath) {
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
+    tinyobj::ObjReader reader;
+    tinyobj::ObjReaderConfig config;
+    reader.ParseFromFile(filepath, config);
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath)) {
-        throw std::runtime_error(warn + err);
+    if (!reader.Valid()) {
+        throw std::runtime_error(reader.Warning() + reader.Error());
     }
 
-    for (const auto& shape : shapes) {
+    const auto& attrib = reader.GetAttrib();
+    std::unordered_map<Vertex, uint32_t> uniqueVertices;
+    for (const auto& shape : reader.GetShapes()) {
         for (const auto& index : shape.mesh.indices) {
-            auto& vertex = m_Vertices.emplace_back();
+            Vertex vertex {};
             vertex.pos = {
                 attrib.vertices[3 * index.vertex_index + 0],
                 attrib.vertices[3 * index.vertex_index + 1],
@@ -1186,7 +1188,12 @@ void VulkanContext::loadObj(const char* filepath) {
             };
             vertex.color = {1.0f, 1.0f, 1.0f};
 
-            m_Indices.push_back(static_cast<uint32_t>(m_Vertices.size()) - 1);
+            if (uniqueVertices.count(vertex) == 0) {
+                uniqueVertices[vertex] = static_cast<uint32_t>(m_Vertices.size());
+                m_Vertices.push_back(vertex);
+            }
+
+            m_Indices.push_back(uniqueVertices[vertex]);
         }
     }
 }
