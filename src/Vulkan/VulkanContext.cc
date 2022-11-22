@@ -8,6 +8,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 static std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open()) {
@@ -75,6 +78,7 @@ VulkanContext::VulkanContext(Window* window)
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
+    loadObj("model.obj");
     createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
@@ -935,6 +939,31 @@ void VulkanContext::createBuffer(VkDeviceSize size,
     }
 
     vkBindBufferMemory(m_Device, buffer, bufferMemory, 0);
+}
+
+void VulkanContext::loadObj(const char* filepath) {
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath)) {
+        throw std::runtime_error(warn + err);
+    }
+
+    for (const auto& shape : shapes) {
+        for (const auto& index : shape.mesh.indices) {
+            auto& vertex = m_Vertices.emplace_back();
+            vertex.pos = {
+                attrib.vertices[3 * index.vertex_index + 0],
+                attrib.vertices[3 * index.vertex_index + 1],
+                attrib.vertices[3 * index.vertex_index + 2]
+            };
+            vertex.color = {1.0f, 1.0f, 1.0f};
+
+            m_Indices.push_back(static_cast<uint32_t>(m_Vertices.size()) - 1);
+        }
+    }
 }
 
 void VulkanContext::createVertexBuffer() {

@@ -130,6 +130,7 @@ private:
     void createDescriptorSetLayout();
     void createDescriptorPool();
     void createDescriptorSets();
+    void loadObj(const char* filepath);
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -176,17 +177,8 @@ private:
     std::vector<VkSemaphore> m_RenderFinishedSemaphores;
     std::vector<VkFence> m_InFlightFences;
 
-    std::vector<Vertex> m_Vertices = {
-        { { -1.0f, -1.0f,  0.0f }, { 0.0f, 1.0f, 0.0f } },
-        { {  1.0f, -1.0f,  0.0f }, { 1.0f, 1.0f, 0.0f } },
-        { {  1.0f,  1.0f,  0.0f }, { 1.0f, 0.0f, 0.0f } },
-        { { -1.0f,  1.0f,  0.0f }, { 0.0f, 0.0f, 0.0f } }
-    };
-
-    std::vector<uint32_t> m_Indices = {
-        0, 1, 2, 2, 3, 0,
-    };
-
+    std::vector<Vertex> m_Vertices;
+    std::vector<uint32_t> m_Indices;
     VkBuffer m_VertexBuffer;
     VkDeviceMemory m_VertexBufferMemory;
     VkBuffer m_IndexBuffer;
