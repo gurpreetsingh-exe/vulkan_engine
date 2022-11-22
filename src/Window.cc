@@ -32,6 +32,10 @@ static void getMousePos(GLFWwindow* window, glm::vec2& mousePos) {
 
 static void mouseButtonEventCallback(GLFWwindow* window, int button, int action, int mods) {
     auto event = reinterpret_cast<Event*>(glfwGetWindowUserPointer(window));
+    event->shift = mods & GLFW_MOD_SHIFT;
+    event->ctrl = mods & GLFW_MOD_CONTROL;
+    event->alt = mods & GLFW_MOD_ALT;
+
     if (action == GLFW_PRESS) {
         event->kind = Event::MouseDown;
     } else if (action == GLFW_RELEASE) {

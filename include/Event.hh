@@ -11,6 +11,9 @@ struct Event {
         None,
     } kind;
     glm::vec2 mouse;
+    bool shift = false;
+    bool ctrl = false;
+    bool alt = false;
     float deltaTime;
 
     const char* name() {
