@@ -114,6 +114,8 @@ private:
     void createCommandPool();
     void createCommandBuffer();
     void createSyncObjects();
+    VkCommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void createVertexBuffer();
@@ -131,6 +133,28 @@ private:
     void createDescriptorPool();
     void createDescriptorSets();
     void loadObj(const char* filepath);
+    VkFormat findSupportedFormat(
+        const std::vector<VkFormat>& candidates,
+        VkImageTiling tiling,
+        VkFormatFeatureFlags features);
+    VkFormat findDepthFormat();
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
+    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+    void createImage(
+        uint32_t width,
+        uint32_t height,
+        VkFormat format,
+        VkImageTiling tiling,
+        VkImageUsageFlags usage,
+        VkMemoryPropertyFlags properties,
+        VkImage& image,
+        VkDeviceMemory& imageMemory);
+    void transitionImageLayout(
+        VkImage image,
+        VkFormat format,
+        VkImageLayout oldLayout,
+        VkImageLayout newLayout);
+    void createDepthResources();
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -189,6 +213,10 @@ private:
 
     VkDescriptorPool m_DescriptorPool;
     std::vector<VkDescriptorSet> m_DescriptorSets;
+
+    VkImage m_DepthImage;
+    VkDeviceMemory m_DepthImageMemory;
+    VkImageView m_DepthImageView;
 
     uint32_t m_CurrentFrame = 0;
 };
