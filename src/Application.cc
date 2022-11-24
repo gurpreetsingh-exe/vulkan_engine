@@ -1,6 +1,9 @@
 #include "Application.hh"
 #include "Event.hh"
 
+#include "imgui_impl_vulkan.h"
+#include "imgui_impl_glfw.h"
+
 Application::Application(std::string name) {
     m_Name = name;
     m_Window = new Window(width, height, m_Name);
@@ -14,6 +17,13 @@ void Application::run() {
     while(!m_Window->isRunning()) {
         auto* e = m_Window->getEvent();
         m_Camera->onUpdate(*e);
+
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+
         m_VulkanContext->drawFrame(*m_Camera);
     }
 }
