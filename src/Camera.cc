@@ -26,9 +26,9 @@ void Camera::onUpdate(Event& e) {
     }
 
     glm::vec2 delta = (e.mouse - m_LastMousePos) * 0.28f;
-    if (e.ctrl && e.alt) {
+    if (e.ctrl && e.alt && e.button == Event::MouseButtonLeft) {
         m_Position += m_Direction * delta.x * 0.06f;
-    } else {
+    } else if (e.button == Event::MouseButtonRight) {
         glm::vec3 upDir = glm::vec3(0.0f, 0.0f, 1.0f);
         glm::mat4 rot_mat = glm::rotate(m_Model, glm::radians(delta.x), upDir);
         rot_mat = glm::rotate(rot_mat, glm::radians(-delta.y), m_Right);

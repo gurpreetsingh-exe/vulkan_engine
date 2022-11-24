@@ -15,6 +15,12 @@ struct Event {
     bool ctrl = false;
     bool alt = false;
     float deltaTime;
+    enum ButtonKind {
+        MouseButtonLeft = 0,
+        MouseButtonRight,
+        MouseButtonMiddle,
+        MouseButtonNone,
+    } button;
 
     const char* name() {
         switch (kind) {

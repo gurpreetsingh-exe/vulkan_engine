@@ -35,6 +35,7 @@ static void mouseButtonEventCallback(GLFWwindow* window, int button, int action,
     event->shift = mods & GLFW_MOD_SHIFT;
     event->ctrl = mods & GLFW_MOD_CONTROL;
     event->alt = mods & GLFW_MOD_ALT;
+    event->button = (Event::ButtonKind)button;
 
     if (action == GLFW_PRESS) {
         event->kind = Event::MouseDown;
