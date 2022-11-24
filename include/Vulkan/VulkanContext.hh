@@ -232,5 +232,7 @@ private:
     VkDeviceMemory m_DepthImageMemory;
     VkImageView m_DepthImageView;
 
+    VkDescriptorPool m_ImguiPool;
+
     uint32_t m_CurrentFrame = 0;
 };
