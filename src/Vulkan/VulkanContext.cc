@@ -37,7 +37,7 @@ VulkanContext::VulkanContext(Window* window)
         throw std::runtime_error("validation layers requested, but not available!");
     }
 
-    glfwSetWindowUserPointer(m_Window->getHandle(), this);
+    m_Window->setContext(this);
 
     VkApplicationInfo appInfo;
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -203,12 +203,19 @@ void VulkanContext::createSwapChain() {
 }
 
 void VulkanContext::recreateSwapChain() {
+    int width = m_Window->getWidth();
+    int height = m_Window->getHeight();
+    while (width == 0 || height == 0) {
+        glfwWaitEvents();
+    }
+
     vkDeviceWaitIdle(m_Device);
 
     cleanupSwapChain();
 
     createSwapChain();
     createImageViews();
+    createDepthResources();
     createFramebuffers();
 }
 
@@ -220,6 +227,10 @@ void VulkanContext::cleanupSwapChain() {
     for (auto imageView : m_SwapChainImageViews) {
         vkDestroyImageView(m_Device, imageView, nullptr);
     }
+
+    vkDestroyImageView(m_Device, m_DepthImageView, nullptr);
+    vkDestroyImage(m_Device, m_DepthImage, nullptr);
+    vkFreeMemory(m_Device, m_DepthImageMemory, nullptr);
 
     vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
 }
@@ -958,8 +969,8 @@ VkExtent2D VulkanContext::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capab
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return capabilities.currentExtent;
     } else {
-        int width, height;
-        glfwGetFramebufferSize(m_Window->getHandle(), &width, &height);
+        int width = m_Window->getWidth();
+        int height = m_Window->getHeight();
         VkExtent2D actualExtent = {
             static_cast<uint32_t>(width),
             static_cast<uint32_t>(height)
@@ -1118,6 +1129,12 @@ void VulkanContext::drawFrame(Camera& camera) {
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        /// make imgui happy
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+        }
         recreateSwapChain();
         return;
     } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -1441,9 +1458,6 @@ VulkanContext::~VulkanContext() {
 
     vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
-    vkDestroyImageView(m_Device, m_DepthImageView, nullptr);
-    vkDestroyImage(m_Device, m_DepthImage, nullptr);
-    vkFreeMemory(m_Device, m_DepthImageMemory, nullptr);
     cleanupSwapChain();
 
     vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);

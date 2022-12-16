@@ -20,11 +20,19 @@ public:
     const glm::mat4& getView() const { return m_View; }
     const glm::mat4& getProjection() const { return m_Projection; }
     void onUpdate(Event& e);
+    void onResize(uint32_t width, uint32_t height) {
+        if (m_ViewportWidth != width || m_ViewportHeight != height) {
+            m_ViewportWidth = width;
+            m_ViewportHeight = height;
+            m_NeedsUpdate = true;
+        }
+    }
 
 private:
     void updateModel();
     void updateView();
     void updateProjection();
+    void _update(Event& e);
 
 private:
     glm::mat4 m_Model;
@@ -36,6 +44,8 @@ private:
     float m_Fov;
     float m_ClipNear;
     float m_ClipFar;
+
+    bool m_NeedsUpdate = false;
 
     glm::vec3 m_Position = glm::vec3(2.0f, 2.0f, 2.0f);
     glm::vec3 m_Direction = glm::vec3(-1.0f);

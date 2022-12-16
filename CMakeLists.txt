@@ -24,7 +24,6 @@ include_directories(${IMGUI_DIR})
 include_directories(${IMGUI_DIR}/backends)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 find_package(Vulkan REQUIRED)
 find_package(X11 REQUIRED)
@@ -34,3 +33,5 @@ add_subdirectory(extern/tinygltf)
 
 add_executable(vulkan_engine ${SOURCES})
 target_link_libraries(vulkan_engine PUBLIC Vulkan::Vulkan glfw tinygltf X11 Xxf86vm Xrandr Xi Xrender ${CMAKE_DL_LIBS})
+target_compile_options(vulkan_engine PRIVATE -fsanitize=address -fno-omit-frame-pointer -pthread)
+target_link_options(vulkan_engine PRIVATE -fsanitize=address)

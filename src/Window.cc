@@ -14,8 +14,10 @@ void GLFW_error(int err, const char* description) {
 }
 
 static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-    auto app = reinterpret_cast<VulkanContext*>(glfwGetWindowUserPointer(window));
-    app->frameBufferResized = true;
+    auto _window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    auto context = _window->getContext();
+    context->frameBufferResized = true;
+    _window->onResize(width, height);
 }
 
 bool isKeyPressed(GLFWwindow* window, int keycode) {
@@ -31,7 +33,8 @@ static void getMousePos(GLFWwindow* window, glm::vec2& mousePos) {
 }
 
 static void mouseButtonEventCallback(GLFWwindow* window, int button, int action, int mods) {
-    auto event = reinterpret_cast<Event*>(glfwGetWindowUserPointer(window));
+    auto _window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    auto event = _window->getEvent();
     event->shift = mods & GLFW_MOD_SHIFT;
     event->ctrl = mods & GLFW_MOD_CONTROL;
     event->alt = mods & GLFW_MOD_ALT;
@@ -49,7 +52,8 @@ static void mouseButtonEventCallback(GLFWwindow* window, int button, int action,
 }
 
 static void mouseEventCallback(GLFWwindow* window, double posX, double posY) {
-    auto event = reinterpret_cast<Event*>(glfwGetWindowUserPointer(window));
+    auto _window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    auto event = _window->getEvent();
     if (event->kind == Event::MouseDown || event->kind == Event::MouseClickDrag) {
         event->kind = Event::MouseClickDrag;
     } else {
@@ -68,6 +72,7 @@ void Window::Init() {
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     m_Window = glfwCreateWindow(
         m_Width,
@@ -75,6 +80,7 @@ void Window::Init() {
         m_Name.c_str(),
         nullptr, nullptr);
 
+    glfwSetWindowUserPointer(m_Window, this);
     glfwSetFramebufferSizeCallback(m_Window, framebufferResizeCallback);
 
     if (!m_Window) {
@@ -95,10 +101,7 @@ const char** Window::getExtensions(uint32_t* extensionCount) {
 bool Window::isRunning() {
     static auto time = std::chrono::high_resolution_clock::now();
     m_isRunning = glfwWindowShouldClose(m_Window);
-    auto tempCtx = reinterpret_cast<VulkanContext*>(glfwGetWindowUserPointer(m_Window));
-    glfwSetWindowUserPointer(m_Window, m_Event);
     glfwPollEvents();
-    glfwSetWindowUserPointer(m_Window, tempCtx);
 
     m_Event->deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(
         time - m_LastTime).count();
@@ -106,10 +109,7 @@ bool Window::isRunning() {
     return m_isRunning;
 }
 
-GLFWwindow* Window::getHandle() {
-    return m_Window;
-}
-
-Event* Window::getEvent() {
-    return m_Event;
+void Window::onResize(int width, int height) {
+    m_Width = width;
+    m_Height = height;
 }

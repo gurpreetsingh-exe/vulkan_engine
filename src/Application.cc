@@ -16,6 +16,7 @@ Application::Application(std::string name) {
 void Application::run() {
     while(!m_Window->isRunning()) {
         auto* e = m_Window->getEvent();
+        m_Camera->onResize(m_Window->getWidth(), m_Window->getHeight());
         m_Camera->onUpdate(*e);
 
         auto& io = ImGui::GetIO();

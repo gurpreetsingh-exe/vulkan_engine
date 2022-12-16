@@ -16,15 +16,7 @@ void Camera::updateProjection() {
     m_Projection[1][1] *= -1;
 }
 
-void Camera::onUpdate(Event& e) {
-    if (e.kind == Event::None || m_LastMousePos == e.mouse) {
-        return;
-    }
-    if (e.kind != Event::MouseClickDrag) {
-        m_LastMousePos = e.mouse;
-        return;
-    }
-
+void Camera::_update(Event& e) {
     glm::vec2 delta = (e.mouse - m_LastMousePos) * 0.28f;
     if (e.ctrl && e.alt && e.button == Event::MouseButtonLeft) {
         m_Position += m_Direction * delta.x * 0.06f;
@@ -41,4 +33,20 @@ void Camera::onUpdate(Event& e) {
     updateView();
 
     m_LastMousePos = e.mouse;
+}
+
+void Camera::onUpdate(Event& e) {
+    if (m_NeedsUpdate) {
+        m_NeedsUpdate = false;
+        _update(e);
+        return;
+    }
+    if (e.kind == Event::None || m_LastMousePos == e.mouse) {
+        return;
+    }
+    if (e.kind != Event::MouseClickDrag) {
+        m_LastMousePos = e.mouse;
+        return;
+    }
+    _update(e);
 }
