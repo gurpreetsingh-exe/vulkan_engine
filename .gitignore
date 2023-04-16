@@ -3,5 +3,5 @@
 !/**/
 .*
 !.gitignore
-!Makefile
+compile_commands.json
 bin/

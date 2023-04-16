@@ -24,6 +24,7 @@ include_directories(${IMGUI_DIR})
 include_directories(${IMGUI_DIR}/backends)
 
 set(CMAKE_CXX_STANDARD 20)
+set(EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Vulkan REQUIRED)
 find_package(X11 REQUIRED)
